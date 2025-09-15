@@ -77,7 +77,7 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
     ];
     return Scaffold(
       appBar: AppBar(
-        title: const Text("E6B TABLET LAYOUT"),
+        title: const Text("E6B PHONE LAYOUT"),
       ),
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(

@@ -20,10 +20,10 @@ final calculators = [
           pressureAltitude + (120 * (temperature - standardTemperature));
 
       if (indicated == 0 || altimeter == 0) {
-        return "Please enter required values";
+        return "Pressure Altitude: -\nDensity Altitude: -";
       }
       if (temperature == 0) {
-        return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet";
+        return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet\nDensity Altitude: -";
       }
       return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet\nDensity Altitude: ${densityAltitude.toStringAsFixed(0)} feet";
     },
@@ -75,9 +75,14 @@ final calculators = [
     fields: const [
       CalculatorField(
           name: "temperature", label: "Outside Air Temperature (°C)"),
-      CalculatorField(name: "dewpoint", label: "Dewpoint (°C)"),
       CalculatorField(
-          name: "indicatedAlt", label: "Indicated Altitude (ft MSL)"),
+        name: "dewpoint",
+        label: "Dewpoint (°C)",
+      ),
+      CalculatorField(
+        name: "indicatedAlt",
+        label: "Indicated Altitude (ft MSL)",
+      ),
     ],
     calculate: (values) {
       final temperature = values["temperature"]!;

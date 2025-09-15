@@ -28,7 +28,11 @@ class _TabletFunctionsPageState extends State<TabletFunctionsPage> {
       ),
       const VerticalDivider(width: 1),
       Expanded(
-        child: calculators[_selectedIndex],
+        // Wrap the calculator in a Key so it rebuilds when _selectedIndex changes
+        child: KeyedSubtree(
+          key: ValueKey(_selectedIndex),
+          child: calculators[_selectedIndex],
+        ),
       ),
     ]);
   }

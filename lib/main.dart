@@ -1,8 +1,10 @@
-import 'package:e6b_flutter/calculatorLists/ConversionsList.dart';
-import 'package:e6b_flutter/calculatorLists/FavoritesList.dart';
-import 'package:e6b_flutter/calculatorLists/FunctionsList.dart';
+import 'package:e6b_flutter/pages/phone/ConversionsList.dart';
+import 'package:e6b_flutter/pages/phone/FavoritesList.dart';
+import 'package:e6b_flutter/pages/phone/FunctionsList.dart';
 import 'package:e6b_flutter/components/Calculators.dart';
 import 'package:e6b_flutter/pages/SettingsPage.dart';
+import 'package:e6b_flutter/pages/tablet/TabletFavoritesPage.dart';
+import 'package:e6b_flutter/pages/tablet/TabletFunctionsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
@@ -49,13 +51,6 @@ class PhoneHomePage extends StatefulWidget {
 class _PhoneHomePageState extends State<PhoneHomePage> {
   int _selectedIndex = 0;
 
-  final _pages = const [
-    FavoritesList(),
-    FunctionsList(),
-    ConversionsList(),
-    SettingsPage(),
-  ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -64,6 +59,24 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final _pages = [
+      FavoritesList(),
+      FunctionsList(
+        selectedIndex: -1,
+        onCalculatorSelected: (index) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Scaffold(
+                body: calculators[index],
+              ),
+            ),
+          );
+        },
+      ),
+      ConversionsList(),
+      SettingsPage(),
+    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text("E6B TABLET LAYOUT"),
@@ -107,8 +120,8 @@ class _TabletHomePageState extends State<TabletHomePage> {
   int? _selectedCalculatorIndex;
 
   final _pages = const [
-    FavoritesList(),
-    FunctionsList(),
+    TabletFovoritesPage(),
+    TabletFunctionsPage(),
     ConversionsList(),
     SettingsPage(),
   ];
@@ -125,19 +138,7 @@ class _TabletHomePageState extends State<TabletHomePage> {
       appBar: AppBar(
         title: const Text("E6B TABLET LAYOUT"),
       ),
-      body: Row(
-        children: [
-          SizedBox(
-            width: 350,
-            child: _pages[_selectedIndex],
-          ),
-          const VerticalDivider(width: 1),
-          Expanded(
-              child: _selectedCalculatorIndex == null
-                  ? calculators[0]
-                  : const Center(child: Text("calculator selected"))),
-        ],
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,

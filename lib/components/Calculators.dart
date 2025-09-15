@@ -17,8 +17,13 @@ final calculators = [
       final densityAltitude =
           pressureAltitude + (120 * (temperature - standardTemperature));
 
-      if (indicated == null || altimeter == null || temperature == null) {
+      if (indicated == 0 || altimeter == 0) {
         return "hello";
+      }
+      if (temperature == 0) {
+        return "Pressure Altitude: " +
+            pressureAltitude.toStringAsFixed(0) +
+            " feet";
       }
       return "Pressure Altitude: " +
           pressureAltitude.toStringAsFixed(0) +

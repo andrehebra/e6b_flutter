@@ -49,8 +49,12 @@ final calculators = [
 
       // Calculate angle difference (wind - runway), normalized
       double angle = windDir - runwayHeading;
-      while (angle > 180) angle -= 360;
-      while (angle < -180) angle += 360;
+      while (angle > 180) {
+        angle -= 360;
+      }
+      while (angle < -180) {
+        angle += 360;
+      }
 
       // Crosswind and headwind
       final crosswind = windSpeed * (sin(angle * pi / 180));
@@ -103,7 +107,7 @@ final calculators = [
   ),
   CalculatorPage(
     title: "Hydroplane Speed",
-    fields: [
+    fields: const [
       CalculatorField(name: "tirePressure", label: "Tire Pressure (PSI)"),
     ],
     calculate: (values) {

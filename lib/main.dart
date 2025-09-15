@@ -6,8 +6,6 @@ import 'package:e6b_flutter/pages/SettingsPage.dart';
 import 'package:e6b_flutter/pages/tablet/TabletFavoritesPage.dart';
 import 'package:e6b_flutter/pages/tablet/TabletFunctionsPage.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math';
 
 void main() {
   runApp(const E6BApp());
@@ -18,9 +16,9 @@ class E6BApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: "test",
-      home: const HomePage(),
+      home: HomePage(),
     );
   }
 }
@@ -59,8 +57,8 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final _pages = [
-      FavoritesList(),
+    final pages = [
+      const FavoritesList(),
       FunctionsList(
         selectedIndex: -1,
         onCalculatorSelected: (index) {
@@ -74,14 +72,14 @@ class _PhoneHomePageState extends State<PhoneHomePage> {
           );
         },
       ),
-      ConversionsList(),
-      SettingsPage(),
+      const ConversionsList(),
+      const SettingsPage(),
     ];
     return Scaffold(
       appBar: AppBar(
         title: const Text("E6B TABLET LAYOUT"),
       ),
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
@@ -117,7 +115,6 @@ class TabletHomePage extends StatefulWidget {
 
 class _TabletHomePageState extends State<TabletHomePage> {
   int _selectedIndex = 0;
-  int? _selectedCalculatorIndex;
 
   final _pages = const [
     TabletFovoritesPage(),

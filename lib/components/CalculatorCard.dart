@@ -15,7 +15,7 @@ class CalculatorCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      elevation: 3,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,

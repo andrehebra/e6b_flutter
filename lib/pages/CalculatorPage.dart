@@ -10,10 +10,22 @@ class CalculatorField {
   });
 }
 
+class CalculatorResult {
+  final String title;
+  final double? value;
+  final String unit;
+
+  const CalculatorResult({
+    required this.title,
+    required this.value,
+    required this.unit,
+  });
+}
+
 class CalculatorPage extends StatefulWidget {
   final String title;
   final List<CalculatorField> fields;
-  final String? Function(Map<String, double?>) calculate;
+  final List<CalculatorResult> Function(Map<String, double?>) calculate;
 
   const CalculatorPage({
     super.key,
@@ -28,7 +40,7 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
   final Map<String, TextEditingController> _controllers = {};
-  String? _result;
+  List<CalculatorResult> _results = [];
 
   @override
   void initState() {
@@ -50,13 +62,26 @@ class _CalculatorPageState extends State<CalculatorPage> {
   }
 
   void _updateResult() {
-    final values = <String, double>{};
+    final values = <String, double?>{};
     for (var entry in _controllers.entries) {
-      values[entry.key] = double.tryParse(entry.value.text) ?? 0.0;
+      values[entry.key] = double.tryParse(entry.value.text);
     }
     setState(() {
-      _result = widget.calculate(values);
+      _results = widget.calculate(values);
     });
+  }
+
+  String? _unitForField(String name) {
+    switch (name) {
+      case "indicatedAlt":
+        return "ft";
+      case "altimeter":
+        return "inHg";
+      case "temperature":
+        return "°C";
+      default:
+        return null;
+    }
   }
 
   @override
@@ -65,21 +90,77 @@ class _CalculatorPageState extends State<CalculatorPage> {
       appBar: AppBar(title: Text(widget.title)),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            for (var field in widget.fields)
-              TextField(
-                controller: _controllers[field.name],
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: field.label),
-              ),
-            const SizedBox(height: 16),
-            if (_result != null)
-              Text(
-                "$_result",
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              for (var field in widget.fields)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: TextFormField(
+                    controller: _controllers[field.name],
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: field.label,
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(color: Colors.blue, width: 2),
+                      ),
+
+                      suffixText:
+                          _unitForField(field.name), // <- helper to show units
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 20),
+              if (_results.isNotEmpty)
+                Column(
+                  children: _results.map((r) {
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              r.title,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            Text(
+                              r.value != null
+                                  ? "${r.value!.toStringAsFixed(2)} ${r.unit}"
+                                  : "- ${r.unit}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: r.value == null ? Colors.grey : null,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+            ],
+          ),
         ),
       ),
     );

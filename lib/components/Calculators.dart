@@ -11,21 +11,43 @@ final calculators = [
       CalculatorField(name: "temperature", label: "Temperature (celsius)"),
     ],
     calculate: (values) {
-      final indicated = values["indicatedAlt"]!;
-      final altimeter = values["altimeter"]!;
-      final temperature = values["temperature"]!;
+      final indicated = values["indicatedAlt"];
+      final altimeter = values["altimeter"];
+      final temperature = values["temperature"];
+
+      if (indicated == null || altimeter == null) {
+        return const [
+          CalculatorResult(
+              title: "Pressure Altitude", value: null, unit: "feet"),
+          CalculatorResult(
+              title: "Density Altitude", value: null, unit: "feet"),
+        ];
+      }
+
       final pressureAltitude = ((29.92 - altimeter) * 1000) + indicated;
       final standardTemperature = 15 - ((pressureAltitude / 1000) * 2);
+
+      if (temperature == null) {
+        return [
+          CalculatorResult(
+              title: "Pressure Altitude",
+              value: pressureAltitude,
+              unit: "feet"),
+          const CalculatorResult(
+              title: "Density Altitude", value: null, unit: "feet"),
+        ];
+      }
       final densityAltitude =
           pressureAltitude + (120 * (temperature - standardTemperature));
 
-      if (indicated == 0 || altimeter == 0) {
-        return "Pressure Altitude: -\nDensity Altitude: -";
-      }
-      if (temperature == 0) {
-        return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet\nDensity Altitude: -";
-      }
-      return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet\nDensity Altitude: ${densityAltitude.toStringAsFixed(0)} feet";
+      return [
+        CalculatorResult(
+            title: "Pressure Altitude", value: pressureAltitude, unit: "feet"),
+        CalculatorResult(
+            title: "Density Altitude", value: densityAltitude, unit: "feet"),
+      ];
+
+      //return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet\nDensity Altitude: ${densityAltitude.toStringAsFixed(0)} feet";
     },
   ),
   CalculatorPage(
@@ -36,12 +58,15 @@ final calculators = [
       CalculatorField(name: "runway", label: "Runway Number"),
     ],
     calculate: (values) {
-      final windDir = values["windDir"]!;
-      final windSpeed = values["windSpeed"]!;
-      final runway = values["runway"]!;
+      final windDir = values["windDir"];
+      final windSpeed = values["windSpeed"];
+      final runway = values["runway"];
 
-      if (windDir == 0 || windSpeed == 0 || runway == 0) {
-        return "Please enter required values";
+      if (windDir == null || windSpeed == null || runway == null) {
+        return const [
+          CalculatorResult(title: "Headwind", value: null, unit: "kts"),
+          CalculatorResult(title: "Crosswind", value: null, unit: "kts"),
+        ];
       }
 
       // Convert runway number (e.g. 27) into heading (e.g. 270°)
@@ -60,14 +85,17 @@ final calculators = [
       final crosswind = windSpeed * (sin(angle * pi / 180));
       final headwind = windSpeed * (cos(angle * pi / 180));
 
-      final crossStr =
-          "Crosswind: ${crosswind.abs().toStringAsFixed(1)} kt (${crosswind >= 0 ? "from right" : "from left"})";
-
-      final headStr = headwind >= 0
-          ? "Headwind: ${headwind.toStringAsFixed(1)} kt"
-          : "Tailwind: ${headwind.abs().toStringAsFixed(1)} kt";
-
-      return "$crossStr\n$headStr";
+      if (headwind < 0) {
+        return [
+          CalculatorResult(title: "Tailwind", value: headwind, unit: "kts"),
+          CalculatorResult(title: "Crosswind", value: crosswind, unit: "kts"),
+        ];
+      } else {
+        return [
+          CalculatorResult(title: "Headwind", value: headwind, unit: "kts"),
+          CalculatorResult(title: "Crosswind", value: crosswind, unit: "kts"),
+        ];
+      }
     },
   ),
   CalculatorPage(
@@ -85,12 +113,18 @@ final calculators = [
       ),
     ],
     calculate: (values) {
-      final temperature = values["temperature"]!;
-      final dewpoint = values["dewpoint"]!;
-      final indicatedAlt = values["indicatedAlt"]!;
+      final temperature = values["temperature"];
+      final dewpoint = values["dewpoint"];
+      final indicatedAlt = values["indicatedAlt"];
 
-      if (temperature == 0 && dewpoint == 0 && indicatedAlt == 0) {
-        return "Please enter required values";
+      // If any required input is missing, don't show results
+      if (temperature == null || dewpoint == null || indicatedAlt == null) {
+        return const [
+          CalculatorResult(title: "Cloud Base", value: null, unit: "ft MSL"),
+          CalculatorResult(
+              title: "Freezing Level", value: null, unit: "ft MSL"),
+        ];
+        ;
       }
 
       // Cloud base (AGL)
@@ -106,8 +140,11 @@ final calculators = [
         freezingLevel = indicatedAlt + (temperature / 2.44) * 1000;
       }
 
-      return "Cloud Base: ${cloudBase.toStringAsFixed(0)} ft MSL\n"
-          "Freezing Level: ${freezingLevel.toStringAsFixed(0)} ft MSL";
+      return [
+        CalculatorResult(title: "Cloud Base", value: cloudBase, unit: "ft MSL"),
+        CalculatorResult(
+            title: "Freezing Level", value: freezingLevel, unit: "ft MSL"),
+      ];
     },
   ),
   CalculatorPage(
@@ -116,16 +153,22 @@ final calculators = [
       CalculatorField(name: "tirePressure", label: "Tire Pressure (PSI)"),
     ],
     calculate: (values) {
-      final tirePressure = values["tirePressure"]!;
+      final tirePressure = values["tirePressure"];
 
-      if (tirePressure == 0) {
-        return "Please enter a valid tire pressure";
+      if (tirePressure == null) {
+        return [
+          const CalculatorResult(
+              title: "Hydroplane Speed", value: null, unit: "PSI"),
+        ];
       }
 
       // Hydroplane speed in knots
       final hydroplaneSpeed = 9 * sqrt(tirePressure);
 
-      return "Speed: ${hydroplaneSpeed.toStringAsFixed(1)} knots (estimated)";
+      return [
+        CalculatorResult(
+            title: "Hydroplane Speed", value: hydroplaneSpeed, unit: "PSI"),
+      ];
     },
   )
 ];

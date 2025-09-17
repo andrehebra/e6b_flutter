@@ -79,6 +79,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
         return "inHg";
       case "temperature":
         return "°C";
+      case "bankAngle":
+        return "°";
       default:
         return null;
     }

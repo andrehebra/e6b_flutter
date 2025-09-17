@@ -347,5 +347,42 @@ final calculators = [
             title: "Compass Heading", value: compassHeading, unit: "°"),
       ];
     },
-  )
+  ),
+  CalculatorPage(
+    title: "Load Factor and Stall Speed",
+    fields: const [
+      CalculatorField(name: "bankAngle", label: "Bank Angle"),
+      CalculatorField(name: "stallSpeed", label: "Stall Speed"),
+    ],
+    calculate: (values) {
+      final bankAngle = values["bankAngle"];
+      final stallSpeed = values["stallSpeed"];
+
+      if (bankAngle == null) {
+        return const [
+          CalculatorResult(title: "Load Factor", value: null, unit: "G"),
+          CalculatorResult(title: "Stall Speed", value: null, unit: "kts"),
+        ];
+      }
+      final bankAngleRadians = bankAngle * 0.01745;
+      final loadFactor = 1 / (cos(bankAngleRadians));
+
+      if (stallSpeed == null) {
+        return [
+          CalculatorResult(title: "Load Factor", value: loadFactor, unit: "G"),
+          const CalculatorResult(
+              title: "Stall Speed", value: null, unit: "kts"),
+        ];
+      }
+
+      final stallSpeedBank = sqrt(loadFactor) * stallSpeed;
+      return [
+        CalculatorResult(title: "Load Factor", value: loadFactor, unit: "G"),
+        CalculatorResult(
+            title: "Stall Speed", value: stallSpeedBank, unit: "kts"),
+      ];
+
+      //return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet\nDensity Altitude: ${densityAltitude.toStringAsFixed(0)} feet";
+    },
+  ),
 ];

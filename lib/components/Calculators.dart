@@ -125,7 +125,6 @@ final calculators = [
           CalculatorResult(
               title: "Freezing Level", value: null, unit: "ft MSL"),
         ];
-        ;
       }
 
       // Cloud base (AGL)
@@ -201,8 +200,6 @@ final calculators = [
 
       // ---- Atmosphere calculations ----
       final tempK = temperature + 273.15; // convert to Kelvin
-      final isaTemp = T0 - (pressureAlt / 1000) * 1.98; // rough ISA lapse (K)
-      final isaDiff = tempK - isaTemp; // deviation from ISA (K)
 
       // Pressure at altitude (simplified ICAO model)
       final pressure = p0 * Math.pow(1 - (0.0065 * pressureAlt) / T0, 5.2561);

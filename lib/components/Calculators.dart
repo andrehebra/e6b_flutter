@@ -386,4 +386,33 @@ final calculators = [
       //return "Pressure Altitude: ${pressureAltitude.toStringAsFixed(0)} feet\nDensity Altitude: ${densityAltitude.toStringAsFixed(0)} feet";
     },
   ),
+  CalculatorPage(
+    title: "Leg Time",
+    fields: const [
+      CalculatorField(name: "distance", label: "Distance (kts)"),
+      CalculatorField(name: "groundspeed", label: "Groundspeed (kts)")
+    ],
+    calculate: (values) {
+      final distance = values["distance"];
+      final groundspeed = values["groundspeed"];
+
+      if (distance == null || groundspeed == null) {
+        return [
+          const CalculatorResult(
+              title: "Leg time", value: null, unit: "HH:MM:SS"),
+        ];
+      }
+
+      var legTime = distance / groundspeed;
+      final hours = legTime / 1;
+      legTime = legTime % 1;
+      final minutes = legTime * 60 / 1;
+
+      return [
+        CalculatorResult(title: "Leg time", value: hours, unit: "hours"),
+        CalculatorResult(title: "Leg time", value: minutes, unit: "minutes"),
+        const CalculatorResult(title: "Leg time", value: 0, unit: "seconds"),
+      ];
+    },
+  ),
 ];

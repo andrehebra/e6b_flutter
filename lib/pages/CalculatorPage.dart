@@ -1,3 +1,4 @@
+import 'package:e6b_flutter/components/CustomKeypad.dart';
 import 'package:flutter/material.dart';
 
 class CalculatorField {
@@ -41,6 +42,7 @@ class CalculatorPage extends StatefulWidget {
 class _CalculatorPageState extends State<CalculatorPage> {
   final Map<String, TextEditingController> _controllers = {};
   List<CalculatorResult> _results = [];
+  PersistentBottomSheetController? _sheetController;
 
   @override
   void initState() {
@@ -86,82 +88,105 @@ class _CalculatorPageState extends State<CalculatorPage> {
     }
   }
 
+  void _showKeypad(BuildContext context, String fieldName) {
+    // Close existing sheet if open
+    _sheetController?.close();
+
+    _sheetController = Scaffold.of(context).showBottomSheet(
+      (context) => Container(
+        height: 300, // fixed height for keypad
+        color: Colors.white,
+        child: CustomKeypad(controller: _controllers[fieldName]!),
+      ),
+      backgroundColor: Colors.transparent, // already inside container
+      elevation: 8,
+    );
+
+    _sheetController!.closed.then((_) {
+      _sheetController = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              for (var field in widget.fields)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: TextFormField(
-                    controller: _controllers[field.name],
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: field.label,
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+      body: Builder(
+        // Needed so Scaffold.of(context) works
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (var field in widget.fields)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: TextFormField(
+                      controller: _controllers[field.name],
+                      readOnly: true, // prevents iOS keyboard
+                      showCursor: true,
+                      decoration: InputDecoration(
+                        labelText: field.label,
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Colors.blue, width: 2),
+                        ),
+                        suffixText: _unitForField(field.name),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: Colors.blue, width: 2),
-                      ),
-
-                      suffixText:
-                          _unitForField(field.name), // <- helper to show units
+                      onTap: () => _showKeypad(context, field.name),
                     ),
                   ),
-                ),
-              const SizedBox(height: 20),
-              if (_results.isNotEmpty)
-                Column(
-                  children: _results.map((r) {
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              r.title,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              r.value != null
-                                  ? "${r.value!.toStringAsFixed(2)} ${r.unit}"
-                                  : "- ${r.unit}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: r.value == null ? Colors.grey : null,
-                                  ),
-                            ),
-                          ],
+                const SizedBox(height: 20),
+                if (_results.isNotEmpty)
+                  Column(
+                    children: _results.map((r) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-            ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                r.title,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Text(
+                                r.value != null
+                                    ? "${r.value!.toStringAsFixed(2)} ${r.unit}"
+                                    : "- ${r.unit}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          r.value == null ? Colors.grey : null,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

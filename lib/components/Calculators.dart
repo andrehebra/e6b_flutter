@@ -87,8 +87,9 @@ final calculators = [
       final headwind = windSpeed * (cos(angle * pi / 180));
 
       if (headwind < 0) {
+        final tailwind = headwind * -1;
         return [
-          CalculatorResult(title: "Tailwind", value: headwind, unit: "kts"),
+          CalculatorResult(title: "Tailwind", value: tailwind, unit: "kts"),
           CalculatorResult(title: "Crosswind", value: crosswind, unit: "kts"),
         ];
       } else {
